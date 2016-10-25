@@ -1,2 +1,2 @@
-dishwasher.cs.rpi.edu:3333
-ashlee.cs.rpi.edu:4444
+localhost:3333
+localhost:4444
