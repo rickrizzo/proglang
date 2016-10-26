@@ -28,7 +28,7 @@ behavior Trap{
   double       b = 1.0;        // Right endpoint
   int          n = 1024;         // Number of trapezoids
   long initialTime;              // Starting Time
-  String nameServer = "jupiter.wcl.cs.rpi.edu";        // Name Server
+  String nameServer = "";        // Name Server
   String theatersFile = "theatersFile.txt";    // File containing the theaters
 
   void act(String args[]){

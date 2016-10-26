@@ -1,3 +1,5 @@
 *.dump
 *.beam
 *.swp
+
+*.class
