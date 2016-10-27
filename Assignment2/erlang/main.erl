@@ -1,27 +1,42 @@
 -module(main).
 -compile(export_all).
+findMatch(_, [], Count) -> 0;
+findMatch(MatchChar, [H|_], Count) when MatchChar =:= H -> Count + 1;
+findMatch(MatchChar, [H|T], Count) when MatchChar =/= H ->
+  findMatch(MatchChar, T, Count + 1).
 
-invert(StartSeq, _, _) when StartSeq == [] -> [300, []];
-invert(_, TargetSeq, _) when TargetSeq == [] -> [400, []];
-invert(StartSeq, TargetSeq, Characters) when hd(StartSeq) =:= TargetSeq ->
-  io:format("JOIN ELEMENTS: ~p + ~p~n", [Characters, StartSeq]),
-  [0, lists:append([Characters], tl(StartSeq))];
-invert(StartSeq, TargetSeq, Characters) when hd(StartSeq) =/= TargetSeq ->
-  io:format("COMBINING ~p + ~p~n", [Characters, hd(StartSeq)]),
-  ReturnValue = invert(tl(StartSeq), TargetSeq, lists:append(Characters, hd(StartSeq))),
-  [1 + lists:nth(1, ReturnValue), lists:append(Characters, lists:nth(2, ReturnValue))].
+merge(A, [], _) -> A;
+merge([], B, _) -> B;
+merge([HA|TA], [HB|TB], [HC|TC]) ->
+  if
+    HA == HC ->
+      [HA | merge(TA, [HB|TB], TC)];
+    HB == HC ->
+      io:format("+1~n"),
+      [HB | merge([HA|TA], TB, TC)];
+    true ->
+      IndexA = findMatch(HC, [HA|TA], 0),
+      IndexB = findMatch(HC, [HB|TB], 0),
+      if
+        IndexA > 0 ->
+          io:format("+~p~n", [IndexA]),
+          [HC | merge(lists:delete(HC, [HA|TA]), [HB|TB], TC)];
+        IndexB > 0 ->
+          io:format("+~p~n", [IndexB]),
+          [HC | merge([HA|TA], lists:delete(HC, [HB|TB]), TC)];
+        true-> io:format("NO MATCH! ~p ~p ~p~n", [HA, HB, HC]), lists:append([[HA|TA], [HB|TB]])
+      end
+  end.
 
-inversion_count(StartSeq, TargetSeq) when StartSeq == [] -> 0;
-inversion_count(StartSeq, TargetSeq) when hd(StartSeq) =:= hd(TargetSeq) -> 0 + inversion_count(tl(StartSeq), tl(TargetSeq));
-inversion_count(StartSeq, TargetSeq) when hd(StartSeq) =/= hd(TargetSeq) ->
-  Values = invert(StartSeq, hd(TargetSeq), []),
-  io:format("RETURN VALUES ~p, EXISTING START SEQUENCE ~p, NEW START SEQUENCE ~p~n", [Values, tl(StartSeq), [lists:nth(2, Values)]]),
-  lists:nth(1, Values) + inversion_count(lists:nth(2, Values), tl(TargetSeq)).
+splitList([], _) -> [];
+splitList([E], _) -> [E];
+splitList(StartSeq, TargetSeq) ->
+  {A, B} = lists:split(trunc(length(StartSeq) / 2), StartSeq),
+  {TarA, TarB} = lists:split(trunc(length(TargetSeq) / 2), TargetSeq),
+  merge(splitList(A, TarA), splitList(B, TarB), TargetSeq).
 
 do_work(StartSeq, TargetSeq, PID) ->
-  io:format("PID: ~p, StartSeq: ~p, TargetSeq: ~p~n", [PID, StartSeq, TargetSeq]),
-  Count = inversion_count(StartSeq, TargetSeq),
-  io:format("Number of Inversions: ~p~n", [Count]),
+  io:format("~p~n", [splitList(StartSeq, TargetSeq)]),
   PID ! {ok, 4}.
 
 wait_for_done() ->
