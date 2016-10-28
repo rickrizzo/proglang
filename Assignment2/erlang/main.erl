@@ -20,32 +20,43 @@ merge([HA|TA], [HB|TB], [HC|TC], PID) ->
     HA == HC ->
       [HA | merge(TA, [HB|TB], TC, PID)];
     HB == HC ->
-      PID ! {sum, 1},
+      mainThread ! {sum, 1},
       [HB | merge([HA|TA], TB, TC, PID)];
     true ->
       IndexA = findMatch(HC, [HA|TA], 0),
       IndexB = findMatch(HC, [HB|TB], 0),
       if
         IndexA > 0 ->
-          PID ! {sum, IndexA},
+          mainThread ! {sum, IndexA},
           [HC | merge(lists:delete(HC, [HA|TA]), [HB|TB], TC, PID)];
         IndexB > 0 ->
-          PID ! {sum, IndexB},
+          mainThread ! {sum, IndexB},
           [HC | merge([HA|TA], lists:delete(HC, [HB|TB]), TC, PID)];
         true->
           lists:append([[HA|TA], [HB|TB]])
       end
   end.
 
-splitList([], _, _) -> [];
-splitList([E], _, _) -> [E];
+splitList([], _, PID) -> PID ! {PID, []};
+splitList([E], _, PID) -> PID ! {self(),[E]};
 splitList(StartSeq, TargetSeq, PID) ->
   {A, B} = lists:split(trunc(length(StartSeq) / 2), StartSeq),
   {TarA, TarB} = lists:split(trunc(length(TargetSeq) / 2), TargetSeq),
-  merge(splitList(A, TarA, PID), splitList(B, TarB, PID), TargetSeq, PID).
+  PIDA = spawn(main, splitList, [A, TarA, self()]),
+  PIDB = spawn(main, splitList, [B, TarB, self()]),
+  receive
+    {PIDA, ListA} -> ListA
+  end,
+  receive
+    {PIDB, ListB} -> ListB
+  end,
+  PID ! {self(), merge(ListA, ListB, TargetSeq, PID)}.
 
 do_work(StartSeq, TargetSeq, PID) ->
-  splitList(StartSeq, TargetSeq, PID),
+  Inverted = spawn(main, splitList, [StartSeq, TargetSeq, self()]),
+  receive
+    {Inverted, List} -> List
+  end,
   PID ! {ok}.
 
 wait_for_done(Sum) ->
@@ -57,6 +68,7 @@ wait_for_done(Sum) ->
 start() ->
   {ok, [StartSequence]} = io:fread("", "~s"),
   {ok, [TargetSequence]} = io:fread("", "~s"),
+  register(mainThread, self()),
   case length(net_adm:world()) > 0 of
     true ->
       spawn(get_random_node(), main, do_work, [StartSequence, TargetSequence, self()]);
