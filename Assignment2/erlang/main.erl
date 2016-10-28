@@ -57,12 +57,9 @@ wait_for_done(Sum) ->
 start() ->
   {ok, [StartSequence]} = io:fread("", "~s"),
   {ok, [TargetSequence]} = io:fread("", "~s"),
-  io:fwrite("~p~n", [length(net_adm:world())]),
   case length(net_adm:world()) > 0 of
     true ->
-      Node = get_random_node(),
-      io:format("RUNNING ON: ~p~n", [Node]),
-      spawn(Node, main, do_work, [StartSequence, TargetSequence, self()]);
+      spawn(get_random_node(), main, do_work, [StartSequence, TargetSequence, self()]);
     false -> spawn(main, do_work, [StartSequence, TargetSequence, self()])
   end,
   wait_for_done(0).
