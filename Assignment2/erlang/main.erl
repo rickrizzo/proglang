@@ -1,6 +1,13 @@
 -module(main).
 -compile(export_all).
 
+get_random_node() ->
+  rget_random_node(rand:uniform(length(net_adm:world())), net_adm:world()).
+
+rget_random_node(1, [H|_]) -> H;
+rget_random_node(_, [H|[]]) -> H;
+rget_random_node(N, [_|T]) -> rget_random_node(N-1, T).
+
 findMatch(_, [], _) -> 0;
 findMatch(MatchChar, [H|_], Count) when MatchChar =:= H -> Count + 1;
 findMatch(MatchChar, [H|T], Count) when MatchChar =/= H ->
@@ -50,5 +57,12 @@ wait_for_done(Sum) ->
 start() ->
   {ok, [StartSequence]} = io:fread("", "~s"),
   {ok, [TargetSequence]} = io:fread("", "~s"),
-  spawn(main, do_work, [StartSequence, TargetSequence, self()]),
+  io:fwrite("~p~n", [length(net_adm:world())]),
+  case length(net_adm:world()) > 0 of
+    true ->
+      Node = get_random_node(),
+      io:format("RUNNING ON: ~p~n", [Node]),
+      spawn(Node, main, do_work, [StartSequence, TargetSequence, self()]);
+    false -> spawn(main, do_work, [StartSequence, TargetSequence, self()])
+  end,
   wait_for_done(0).
