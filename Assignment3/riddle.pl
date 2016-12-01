@@ -1,8 +1,8 @@
 students(0, []) :- !.
-students(N, [(_Club, _Genre, _Major, _Pizza, _Poster)|T]) :- N1 is N-1, students(N1, T).
+students(N, [(_Club, _Genre, _Major, _Pizza, _Poster)|T]) :- Next is N-1, students(Next, T).
 
 student(1, [H|_], H) :- !.
-student(N, [_|T], R) :- N1 is N-1, student(N1, T, R).
+student(N, [_|T], Pattern) :- Next is N-1, student(Next, T, Pattern).
 
 % The Architecture major occupies the office with the Ctrl+Alt+Del comic poster.
 hint1([(_, _, architecture, _, ctrl_alt_delete)|_]).
