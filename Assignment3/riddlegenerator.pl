@@ -57,6 +57,10 @@ period(46).
 question_mark(63).
 */
 
+student(Major) :-
+  read_line(Line),
+  member((reads, Major), Line).
+
 n([major]).
 n([comic, poster]).
 n([pizza]).
