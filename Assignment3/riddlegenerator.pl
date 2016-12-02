@@ -65,3 +65,6 @@ v([reads]).
 v([eats]).
 v([occupies]).
 v([with, the]).
+
+% Potential Ideas
+% create rules via assert

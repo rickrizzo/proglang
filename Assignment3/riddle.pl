@@ -87,3 +87,5 @@ solution(Students) :-
   hint14(Students),
   hint15(Students),
   question(Students).
+
+get_major(Major) :- solution(Students), member(Major, Studnets).
