@@ -1,6 +1,18 @@
+% Programming Languages Assignment 3
+% Robert Russo and Robert Rotering
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Libraries
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% use_module(library(lambda)).
+
 % Grammer
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 club(rpi_flying).
+club(cs_club).
+club(rcos).
+club(r_gaming_alliance).
+club(taekwondo).
 
 major(itws).
 major(cs).
@@ -16,25 +28,45 @@ genre(poetry).
 
 pizza(cheese).
 pizza(pepperoni).
+pizza(hawaiian).
+pizza(broccoli).
+pizza(buffalo_chicken).
 
 poster(ctrl_alt_del).
 poster(dilbert).
 poster(calvin_and_hobbes).
+poster(phd_comics).
+poster(xkcd).
 
+firstposition(first).
 leftposition(left).
+middleposition(middle).
+nextposition(next).
 
 % Helper Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-atom_to_list(Stream, Line) :-
+% String to List
+stream_to_list(Stream, Line) :-
   read_line_to_codes(Stream, FCs),
   atom_codes(FA, FCs),
-  atomic_list_concat(Line, ' ', FA).
+  atomic_list_concat(LineUpper, ' ', FA),
+  maplist(downcase_atom, LineUpper, Line).
 
+% Directions
 next(A, B, Ls) :- append(_, [A,B|_], Ls).
 next(A, B, Ls) :- append(_, [B,A|_], Ls).
 
 left(A, B, Ls) :- append(_, [A,B|_], Ls).
 
+% First
+sentence(Line, Offices) :-
+  member(Position, Line),
+  firstposition(Position),
+  member(Major, Line),
+  major(Major),
+  Offices = [s(_, _, Major, _, _)|_].
+
+% Left
 sentence(Line, Offices) :-
   member(Position, Line),
   leftposition(Position),
@@ -45,6 +77,25 @@ sentence(Line, Offices) :-
   Poster1 \== Poster2,
   left(s(_, _, _, _, Poster1), s(_, _, _, _, Poster2), Offices).
 
+% Middle
+sentence(Line, Offices) :-
+  member(Position, Line),
+  middleposition(Position),
+  member(Genre, Line),
+  genre(Genre),
+  Offices = [_, _, s(_, Genre, _, _, _), _, _].
+
+% Next
+sentence(Line, Offices) :-
+  member(Position, Line),
+  nextposition(Position),
+  member(Pizza, Line),
+  pizza(Pizza),
+  member(Club, Line),
+  club(Club),
+  next(s(_, _, _, Pizza, _), s(Club, _, _, _, _), Offices).
+
+% Major - Poster
 sentence(Line, Offices) :-
   member(Major, Line),
   major(Major),
@@ -52,6 +103,7 @@ sentence(Line, Offices) :-
   poster(Poster),
   member(s(_, _, Major, _, Poster), Offices).
 
+% Major - Club
 sentence(Line, Offices) :-
   member(Major, Line),
   major(Major),
@@ -59,6 +111,7 @@ sentence(Line, Offices) :-
   club(Club),
   member(s(Club, _, Major, _, _), Offices).
 
+% Major - Genre
 sentence(Line, Offices) :-
   member(Major, Line),
   major(Major),
@@ -66,6 +119,7 @@ sentence(Line, Offices) :-
   genre(Genre),
   member(s(_, Genre, Major, _, _), Offices).
 
+% Poster - Genre
 sentence(Line, Offices) :-
   member(Poster, Line),
   poster(Poster),
@@ -73,6 +127,21 @@ sentence(Line, Offices) :-
   genre(Genre),
   member(s(_, Genre, _, _, Poster), Offices).
 
+% Pizza - Club
+sentence(Line, Offices) :-
+  member(Pizza, Line),
+  pizza(Pizza),
+  member(Club, Line),
+  club(Club),
+  member(s(Club, _, _, Pizza, _), Offices).
+
+% Poster - Pizza
+sentence(Line, Offices) :-
+  member(Poster, Line),
+  poster(Poster),
+  member(Pizza, Line),
+  pizza(Pizza),
+  member(s(_, _, _, Pizza, Poster), Offices).
 
 % Main
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -80,41 +149,46 @@ generateRiddle(File) :-
   length(Offices, 5),
   open(File, read, Stream),
 
+  stream_to_list(Stream, Line1),
+  stream_to_list(Stream, Line2),
+  stream_to_list(Stream, Line3),
+  stream_to_list(Stream, Line4),
+  stream_to_list(Stream, Line5),
+  stream_to_list(Stream, Line6),
+  stream_to_list(Stream, Line7),
+  stream_to_list(Stream, Line8),
+  stream_to_list(Stream, Line9),
+  stream_to_list(Stream, Line10),
+  stream_to_list(Stream, Line11),
+  stream_to_list(Stream, Line12),
+  stream_to_list(Stream, Line13),
+  stream_to_list(Stream, Line14),
+  stream_to_list(Stream, Line15),
+
   % Hint 1
-  atom_to_list(Stream, Line1),
   sentence(Line1, Offices),
-
   % Hint 2
-  atom_to_list(Stream, Line2),
   sentence(Line2, Offices),
-
   % Hint 3
-  atom_to_list(Stream, Line3),
   sentence(Line3, Offices),
-
   % Hint 4
-  atom_to_list(Stream, Line4),
   sentence(Line4, Offices),
-
   % Hint 5
-  atom_to_list(Stream, Line5),
-  write(Line5), nl,
   sentence(Line5, Offices),
+  % Hint 6
+  sentence(Line6, Offices),
+  % Hint 7
+  sentence(Line7, Offices),
+  % Hint 8
+  sentence(Line8, Offices),
+  % Hint 9
+  sentence(Line9, Offices),
+  % Hint 10
+  sentence(Line10, Offices),
+  % Hint 11
+  % Hint 12
+  % Hint 13
+  % Hint 14
+  % Hint 15
 
   write(Offices), nl.
-
-% sentence(Major, Offices) :-
-%   read_line(Line),
-%   member(Major, Line),
-%   major(Major),
-%   member(Genre, Line),
-%   genre(Genre),
-%   member(s(_, Genre, Major, _, _), Offices).
-%
-% sentence(Major, Offices) :-
-%   read_line(Line),
-%   member(Major, Line),
-%   major(Major),
-%   member(Pizza, Line),
-%   pizza(Pizza),
-%   member(s(_, _, Major, Pizza, _), Offices).

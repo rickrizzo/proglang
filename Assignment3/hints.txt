@@ -1,5 +1,15 @@
-the architecture major occupies the office with the ctrl_alt_del comic poster
-the cse major belongs to the rpi_flying club
-the gs major reads sci_fi
-the office with the dilbert comic poster is on the left of the office with the calvin_and_hobbes comic poster
+The CS major occupies the first office
+The student occupying the office in the middle reads fiction
+The office with the dilbert comic poster is on the left of the office with the calvin_and_hobbes comic poster
+The architecture major occupies the office with the ctrl_alt_del comic poster
+The cse major belongs to the rpi_flying club
+The gs major reads sci_fi
 The office with the dilbert comic poster's occupant reads fantasy
+The student who eats pepperoni pizza belongs to the RCOS club
+the occupant of the office with the xkcd comic poster eats cheese pizza
+The student who eats buffalo_chicken pizza occupies the office next to the one who belongs to the r_gaming_alliance club
+The student who belongs to the CS_club occupies the office next to the student who eats cheese pizza
+The student who eats hawaiian pizza reads poetry
+The itws major eats broccoli pizza
+The CS major occupies the office next to the one with the phd_comics comic poster
+The student who eats buffalo_chicken pizza has an office neighbor who reads history
