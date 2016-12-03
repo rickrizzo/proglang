@@ -42,6 +42,7 @@ firstposition(first).
 leftposition(left).
 middleposition(middle).
 nextposition(next).
+nextposition(neighbor).
 
 % Helper Functions
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -85,7 +86,7 @@ sentence(Line, Offices) :-
   genre(Genre),
   Offices = [_, _, s(_, Genre, _, _, _), _, _].
 
-% Next
+% Next Pizza Club
 sentence(Line, Offices) :-
   member(Position, Line),
   nextposition(Position),
@@ -93,7 +94,30 @@ sentence(Line, Offices) :-
   pizza(Pizza),
   member(Club, Line),
   club(Club),
-  next(s(_, _, _, Pizza, _), s(Club, _, _, _, _), Offices).
+  next(s(_, _, _, Pizza, _), s(Club, _, _, _, _), Offices),
+  member(Student, Offices), Student \== s(Club, _, _, Pizza, _).
+
+% Next Major Poster
+sentence(Line, Offices) :-
+  member(Position, Line),
+  nextposition(Position),
+  member(Major, Line),
+  major(Major),
+  member(Poster, Line),
+  poster(Poster),
+  next(s(_, _, Major, _, _), s(_, _, _, _, Poster), Offices),
+  member(Student, Offices), Student \== s(_, _, Major, _, Poster).
+
+% Next Pizza Genre
+sentence(Line, Offices) :-
+  member(Position, Line),
+  nextposition(Position),
+  member(Pizza, Line),
+  pizza(Pizza),
+  member(Genre, Line),
+  genre(Genre),
+  next(s(_, _, _, Pizza, _), s(_, Genre, _, _, _), Offices),
+  member(Student, Offices), Student \== s(_, Genre, _, Pizza, _).
 
 % Major - Poster
 sentence(Line, Offices) :-
@@ -119,6 +143,14 @@ sentence(Line, Offices) :-
   genre(Genre),
   member(s(_, Genre, Major, _, _), Offices).
 
+% Major - Pizza
+sentence(Line, Offices) :-
+  member(Major, Line),
+  major(Major),
+  member(Pizza, Line),
+  pizza(Pizza),
+  member(s(_, _, Major, Pizza, _), Offices).
+
 % Poster - Genre
 sentence(Line, Offices) :-
   member(Poster, Line),
@@ -142,6 +174,14 @@ sentence(Line, Offices) :-
   member(Pizza, Line),
   pizza(Pizza),
   member(s(_, _, _, Pizza, Poster), Offices).
+
+% Pizza - Genre
+sentence(Line, Offices) :-
+  member(Pizza, Line),
+  pizza(Pizza),
+  member(Genre, Line),
+  genre(Genre),
+  member(s(_, Genre, _, Pizza, _), Offices).
 
 % Main
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -186,9 +226,69 @@ generateRiddle(File) :-
   % Hint 10
   sentence(Line10, Offices),
   % Hint 11
-  % Hint 12
-  % Hint 13
+  sentence(Line11, Offices),
+  % % Hint 12
+  sentence(Line12, Offices),
+  % % Hint 13
+  sentence(Line13, Offices),
   % Hint 14
+  sentence(Line14, Offices),
   % Hint 15
+  sentence(Line15, Offices),
 
   write(Offices), nl.
+
+generateRiddle(File, Offices) :-
+  length(Offices, 5),
+  open(File, read, Stream),
+
+  stream_to_list(Stream, Line1),
+  stream_to_list(Stream, Line2),
+  stream_to_list(Stream, Line3),
+  stream_to_list(Stream, Line4),
+  stream_to_list(Stream, Line5),
+  stream_to_list(Stream, Line6),
+  stream_to_list(Stream, Line7),
+  stream_to_list(Stream, Line8),
+  stream_to_list(Stream, Line9),
+  stream_to_list(Stream, Line10),
+  stream_to_list(Stream, Line11),
+  stream_to_list(Stream, Line12),
+  stream_to_list(Stream, Line13),
+  stream_to_list(Stream, Line14),
+  stream_to_list(Stream, Line15),
+
+  % Hint 1
+  sentence(Line1, Offices),
+  % Hint 2
+  sentence(Line2, Offices),
+  % Hint 3
+  sentence(Line3, Offices),
+  % Hint 4
+  sentence(Line4, Offices),
+  % Hint 5
+  sentence(Line5, Offices),
+  % Hint 6
+  sentence(Line6, Offices),
+  % Hint 7
+  sentence(Line7, Offices),
+  % Hint 8
+  sentence(Line8, Offices),
+  % Hint 9
+  sentence(Line9, Offices),
+  % Hint 10
+  sentence(Line10, Offices),
+  % Hint 11
+  sentence(Line11, Offices),
+  % % Hint 12
+  sentence(Line12, Offices),
+  % % Hint 13
+  sentence(Line13, Offices),
+  % Hint 14
+  sentence(Line14, Offices),
+  % Hint 15
+  sentence(Line15, Offices).
+
+student(Major) :-
+  generateRiddle('Hints.txt', Offices),
+  member(s(taekwondo, _, Major, _, _), Offices), !.
