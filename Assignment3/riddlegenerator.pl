@@ -1,74 +1,120 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%  read_line
-%%%  Similar to read_sent in Pereira and Shieber, Prolog and
-%%%        Natural Language Analysis, CSLI, 1987.
-%%%
-%%%  Examples:
-%%%           % read_line(L).
-%%%           The sky was blue, after the rain.
-%%%           L = [the,sky,was,blue,',',after,the,rain,'.']
-%%%           % read_line(L).
-%%%           Which way to the beach?
-%%%           L = [which,way,to,the, beach,'?']
-%%%
+% Grammer
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+club(rpi_flying).
 
-read_line(Words) :- get0(C),
-                    read_rest(C,Words).
+major(itws).
+major(cs).
+major(cse).
+major(gs).
+major(architecture).
 
-/* A period or question mark ends the input. */
-read_rest(46,['.']) :- !.
-read_rest(63,['?']) :- !.
+genre(fiction).
+genre(fantasy).
+genre(sci_fi).
+genre(history).
+genre(poetry).
 
-/* Spaces and newlines between words are ignored. */
-read_rest(C,Words) :- ( C=32 ; C=10 ) , !,
-                     get0(C1),
-                     read_rest(C1,Words).
+pizza(cheese).
+pizza(pepperoni).
 
-/* Commas between words are absorbed. */
-read_rest(44,[','|Words]) :- !,
-                             get0(C1),
-                             read_rest(C1,Words).
+poster(ctrl_alt_del).
+poster(dilbert).
+poster(calvin_and_hobbes).
 
-/* Otherwise get all of the next word. */
-read_rest(C,[Word|Words]) :- lower_case(C,LC),
-                             read_word(LC,Chars,Next),
-                             name(Word,Chars),
-                             read_rest(Next,Words).
+leftposition(left).
 
-/* Space, comma, newline, period or question mark separate words. */
-read_word(C,[],C) :- ( C=32 ; C=44 ; C=10 ;
-                         C=46 ; C=63 ) , !.
+% Helper Functions
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+atom_to_list(Stream, Line) :-
+  read_line_to_codes(Stream, FCs),
+  atom_codes(FA, FCs),
+  atomic_list_concat(Line, ' ', FA).
 
-/* Otherwise, get characters, convert alpha to lower case. */
-read_word(C,[LC|Chars],Last) :- lower_case(C,LC),
-                                get0(Next),
-                                read_word(Next,Chars,Last).
+next(A, B, Ls) :- append(_, [A,B|_], Ls).
+next(A, B, Ls) :- append(_, [B,A|_], Ls).
 
-/* Convert to lower case if necessary. */
-lower_case(C,C) :- ( C <  65 ; C > 90 ) , !.
-lower_case(C,LC) :- LC is C + 32.
+left(A, B, Ls) :- append(_, [A,B|_], Ls).
+
+sentence(Line, Offices) :-
+  member(Position, Line),
+  leftposition(Position),
+  member(Poster1, Line),
+  poster(Poster1),
+  member(Poster2, Line),
+  poster(Poster2),
+  Poster1 \== Poster2,
+  left(s(_, _, _, _, Poster1), s(_, _, _, _, Poster2), Offices).
+
+sentence(Line, Offices) :-
+  member(Major, Line),
+  major(Major),
+  member(Poster, Line),
+  poster(Poster),
+  member(s(_, _, Major, _, Poster), Offices).
+
+sentence(Line, Offices) :-
+  member(Major, Line),
+  major(Major),
+  member(Club, Line),
+  club(Club),
+  member(s(Club, _, Major, _, _), Offices).
+
+sentence(Line, Offices) :-
+  member(Major, Line),
+  major(Major),
+  member(Genre, Line),
+  genre(Genre),
+  member(s(_, Genre, Major, _, _), Offices).
+
+sentence(Line, Offices) :-
+  member(Poster, Line),
+  poster(Poster),
+  member(Genre, Line),
+  genre(Genre),
+  member(s(_, Genre, _, _, Poster), Offices).
 
 
-/* for reference ...
-newline(10).
-comma(44).
-space(32).
-period(46).
-question_mark(63).
-*/
+% Main
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+generateRiddle(File) :-
+  length(Offices, 5),
+  open(File, read, Stream),
 
-student(Major) :-
-  read_line(Line),
-  member((reads, Major), Line).
+  % Hint 1
+  atom_to_list(Stream, Line1),
+  sentence(Line1, Offices),
 
-n([major]).
-n([comic, poster]).
-n([pizza]).
+  % Hint 2
+  atom_to_list(Stream, Line2),
+  sentence(Line2, Offices),
 
-v([reads]).
-v([eats]).
-v([occupies]).
-v([with, the]).
+  % Hint 3
+  atom_to_list(Stream, Line3),
+  sentence(Line3, Offices),
 
-% Potential Ideas
-% create rules via assert
+  % Hint 4
+  atom_to_list(Stream, Line4),
+  sentence(Line4, Offices),
+
+  % Hint 5
+  atom_to_list(Stream, Line5),
+  write(Line5), nl,
+  sentence(Line5, Offices),
+
+  write(Offices), nl.
+
+% sentence(Major, Offices) :-
+%   read_line(Line),
+%   member(Major, Line),
+%   major(Major),
+%   member(Genre, Line),
+%   genre(Genre),
+%   member(s(_, Genre, Major, _, _), Offices).
+%
+% sentence(Major, Offices) :-
+%   read_line(Line),
+%   member(Major, Line),
+%   major(Major),
+%   member(Pizza, Line),
+%   pizza(Pizza),
+%   member(s(_, _, Major, Pizza, _), Offices).
