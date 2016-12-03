@@ -234,9 +234,7 @@ generateRiddle(File) :-
   % Hint 14
   sentence(Line14, Offices),
   % Hint 15
-  sentence(Line15, Offices),
-
-  write(Offices), nl.
+  sentence(Line15, Offices).
 
 generateRiddle(File, Offices) :-
   length(Offices, 5),
@@ -287,7 +285,7 @@ generateRiddle(File, Offices) :-
   % Hint 14
   sentence(Line14, Offices),
   % Hint 15
-  sentence(Line15, Offices).
+  sentence(Line15, Offices), !.
 
 student(Major) :-
   generateRiddle('Hints.txt', Offices),
